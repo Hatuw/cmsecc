@@ -27,14 +27,17 @@ phi = lambda x: np.max(np.abs(x))
 
 
 # define minimize(list)
-def find_d(**kwargs):
+def find_d(*args):
     """
-    d is among the odd integers immediately less than(<) or greater than(>) (f1-f2)/(g1-g2) and -(f1,f2)/(g1+g2)
+    d: d is among the odd integers immediately
+    less than(<) or greater than(>)
+    (f1-f2)/(g1-g2) and -(f1,f2)/(g1+g2)
     """
     d = 1
-    assert len(kwargs) == 2, "It need tow args(f, g) to find d"
-    d = phi(kwargs[0] + d*kwargs[1])
+    assert len(args) == 2, "It need tow args(f, g) to find d"
+    d = phi(args[0] + d*args[1])
     return d
+
 
 def minimize(f=None, d=None, g=None):
     # d % 2 ==0
