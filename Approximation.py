@@ -19,14 +19,19 @@ sequence_file = './sequence.txt'
 test_seq = "0011100101"
 sequence = test_seq
 
-# find the first nonzero k(a_i)
-for index, val in enumerate(sequence):
-    if val == '1':
-        k = index + 1
-        break
-
 # define phi(x)
 phi = lambda x: np.max(np.abs(x))
+
+
+# cal the bound
+def cal_bound(*args):
+    assert len(args) == 2, "the length of input must eq 2"
+    ar1 = args[0]
+    ar2 = args[1]
+    temp_bound1 = (ar1[0] - ar1[1]) / (ar2[0] - ar2[1])
+    temp_bound2 = -(ar1[0] + ar1[1]) / (ar2[0] + ar2[1])
+    bound = np.sort([temp_bound1, temp_bound2])
+    return bound
 
 
 # define minimize(list)
@@ -36,56 +41,57 @@ def find_d(*args):
     less than(<) or greater than(>)
     (f1-f2)/(g1-g2) and -(f1,f2)/(g1+g2)
     """
+    assert len(args) == 4, "It need tow args(f, g) to find d"
     lowwer_bound = args[2]+1 if args[2] % 2 == 0 else args[2]
     upper_bound = args[3]
     d = np.arange(lowwer_bound, upper_bound, 2)[:, np.newaxis]
-    assert len(args) == 4, "It need tow args(f, g) to find d"
-    d = phi(args[0] + d*args[1])
-    return d
+    # print(np.abs(args[0] + d*args[1]))
+    tmp_phi = np.max(np.abs(args[0] + d*args[1]), 1)
+    d = d[np.where(tmp_phi == np.min(tmp_phi))]
+    return d[0]
 
 
-def minimize(f=None, d=None, g=None):
-    # d % 2 ==0
-    pass
+def test(g, sequence):
+    pad = 0
+    for index, val in enumerate(sequence):
+        pad += int(val) * 2**index
+
+    if g[1] * pad % (2**len(sequence)) != g[0]:
+        print("Error with g: ", g)
+
+
+# find the first nonzero k(a_i)
+for k, val in enumerate(sequence):
+    if val == '1':
+        break
 
 # define alpha, f and g
-a_k = 1 # $a_{k-1}$
-alpha = a_k * (2**(k-1))
+a_k = 1
+alpha = 2**k
 f = np.array([0, 2])
-g = np.array([2**(k-1), 1])
-print(a_k, alpha, f, g)
+g = np.array([2**(k), 1])
 
-i = 0
-while i < 10:
-    # input a new bits a_k
-    """
-    for index, val in enumerate(sequence):
-        if val == '1':
-            k = index + 1
-            break
-    """
+i = k+1
+while i < len(sequence):
+    # alpha += a_k * (2**k)
+    alpha += int(sequence[i]) * 2**i
 
-    alpha += a_k * (2**k)
-    if alpha*g[1] - g[0] // 2**(k+1) == 0:
+    if (alpha*g[1] - g[0]) % (2**(i+1)) == 0:
         f *= 2
 
     elif phi(g) < phi(f):
-        # let d to be odd and minimize phi(f+dg)
-        temp_bound1 = (f[0] - f[1]) / (g[0] - g[1])
-        temp_bound2 = (f[0] + f[1]) / (g[0] + g[1])
-        bound = np.sort([temp_bound1, temp_bound2])
+        bound = cal_bound(f, g)
         d = find_d(f, g, bound[0], bound[1])
         g = f + d*g
         f = 2 * g
 
     else:
-        # let d to be odd and minimize phi(f+dg)
-        temp_bound1 = (g[0] - g[1]) / (f[0] - f[1])
-        temp_bound2 = (g[0] + g[1]) / (f[0] + f[1])
-        bound = np.sort([temp_bound1, temp_bound2])
+        bound = cal_bound(g, f)
         d = find_d(g, f, bound[0], bound[1])
-        g = f + d*f
+        g += d*f
         f *= 2
-    k += 1
     i += 1
-print(g)
+
+print("result_g: {}".format(g))
+
+test(g, sequence)
