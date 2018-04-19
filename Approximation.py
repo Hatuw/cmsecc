@@ -11,10 +11,13 @@ import numpy as np
 sequence_file = './sequence.txt'
 
 
-# load the sequence data
-with open(sequence_file, 'r') as sq_in:
-    # for test: only load the top 1000 numbers
-    sequence = sq_in.readline()[:1000]
+# # load the sequence data
+# with open(sequence_file, 'r') as sq_in:
+#     # for test: only load the top 1000 numbers
+#     sequence = sq_in.readline()[:1000]
+
+test_seq = "0011100101"
+sequence = test_seq
 
 # find the first nonzero k(a_i)
 for index, val in enumerate(sequence):
@@ -51,14 +54,22 @@ g = np.array([2**k, 1])
 
 i = 0
 while i < 10:
+    # input a new bits a_k
+    for index, val in enumerate(sequence):
+        if val == '1':
+            k = index + 1
+            break
+
     alpha += a_k * (2**k)
     if alpha*g[1] - g[0] // 2**(k+1) == 0:
         f *= 2
+
     elif phi(g) < phi(f):
         # let d to be odd and minimize phi(f+dg)
         d = find_d(f, g)
         g = f + d*g
         f = 2 * g
+
     else:
         # let d to be odd and minimize phi(f+dg)
         d = find_d(g, f)
