@@ -15,7 +15,11 @@ del G
 # print(gmpy2.gcd(g[0], g[1]))
 
 i = 0
+<<<<<<< HEAD
 N = 10000
+=======
+N = 1966000
+>>>>>>> 912cf172c42cf4fee36d2a31e53e5a9d46c61123
 seq = ''
 
 
